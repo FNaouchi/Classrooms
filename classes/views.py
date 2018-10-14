@@ -17,7 +17,7 @@ def classroom_list(request):
 
 def classroom_detail(request, classroom_id):
 	classroom = Classroom.objects.get(id=classroom_id)
-	students = Student.objects.filter(classroom=classroom)
+	students = Student.objects.filter(classroom=classroom).order_by('name', '-exam_grade')
 	
 	context = {
 		"classroom": classroom,
@@ -47,7 +47,9 @@ def classroom_create(request):
 def student_create(request, classroom_id):
 	form= StudentForm()
 	classroom=Classroom.objects.get(id=classroom_id)
-	if not (request.user.is_authenticated or request.user==classroom.teacher):
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if not request.user==classroom.teacher:
 		return redirect('noaccess')
 	if request.method == "POST":
 		form = StudentForm(request.POST)
@@ -67,7 +69,9 @@ def student_create(request, classroom_id):
 def student_update(request, student_id):
 	student = Student.objects.get(id=student_id)
 	form=StudentForm(instance = student)
-	if not (request.user.is_authenticated or request.user==student.classroom.teacher):
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if not request.user==student.classroom.teacher:
 		return redirect('noaccess')
 	if request.method == "POST":
 		form = StudentForm(request.POST, instance=student)
@@ -85,7 +89,9 @@ def student_update(request, student_id):
 def student_delete(request, student_id):
 	student = Student.objects.get(id=student_id)
 	returnid= student.classroom.id
-	if not (request.user.is_authenticated or request.user==student.classroom.teacher):
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if not request.user==student.classroom.teacher:
 		return redirect('noaccess')
 	student.delete()
 	return redirect('classroom-detail', returnid )
@@ -134,6 +140,10 @@ def no_access(request):
 
 def classroom_update(request, classroom_id):
 	classroom = Classroom.objects.get(id=classroom_id)
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if not request.user==classroom.teacher:
+		return redirect('noaccess')
 	form = ClassroomForm(instance=classroom)
 	if request.method == "POST":
 		form = ClassroomForm(request.POST, request.FILES or None, instance=classroom)
@@ -150,6 +160,11 @@ def classroom_update(request, classroom_id):
 
 
 def classroom_delete(request, classroom_id):
+	classroom = Classroom.objects.get(id=classroom_id)
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if not request.user==classroom.teacher:
+		return redirect('noaccess')
 	Classroom.objects.get(id=classroom_id).delete()
 	messages.success(request, "Successfully Deleted!")
 	return redirect('classroom-list')
