@@ -8,9 +8,6 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       	{% if request.user.is_authenticated %}
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'classroom-create'%}">Create Classrooms <span class="sr-only">(current)</span></a>
-      </li>
       	<li class="nav-item active">
         	<a class="nav-link" href="{% url 'signout'%}">Signout</a>
       	</li>
@@ -18,6 +15,9 @@
       		<strong>{{request.user.username}}</strong> 
       	</li>
       {% else %}
+        <li class="nav-item active">
+        <a class="nav-link" href="{% url 'classroom-create'%}">Create Classrooms <span class="sr-only">(current)</span></a>
+        </li>
       	<li class="nav-item active">
         	<a class="nav-link" href="{% url 'signup'%}">Signup</a>
       	</li>
